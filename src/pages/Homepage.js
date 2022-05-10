@@ -14,10 +14,25 @@ const API_Data = [
 export default function Homepage() {
     const [inputHandler, setInputHandler] = useState(false)
     const [data, setData] = useState([])
-
+    const [List, setList] = useState("")
     useEffect(() => {
-        console.count()
-        // console.log(data)
+        setList("")
+    }, [])
+    function addNewListHandler(id) {
+        try {
+            const myData = [...data]
+            const myListData = { id: myData.length + 1, text: List, editMode: false }
+            myData.push(myListData)
+            setData(myData)
+            setInputHandler(false)
+            setList("")
+
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+    useEffect(() => {
         setData(API_Data)
     }, [])
     const value = {
@@ -35,14 +50,15 @@ export default function Homepage() {
         Save: "btn-outline-success",
     }
 
-    function testFunc() {
+    function addList() {
         setInputHandler(!inputHandler)
     }
+
 
     function buttonHandler(currentData) {
         const myData = [...data]
         for (let i = 0; i < myData.length; i++) {
-            let element = myData[i];
+
             myData[i] = { ...myData[i], editMode: false }
 
         }
@@ -53,22 +69,45 @@ export default function Homepage() {
     const saveDataHandler = (myInputData, id) => {
         const myData = [...data]
         for (let i = 0; i < myData.length; i++) {
-            let element = myData[i];
+
             myData[i] = { ...myData[i], editMode: false }
 
         }
         const currentObjIndex = myData.findIndex((val) => val.id === id)
-        // myData.splice(currentObjIndex, 1)
         myData[currentObjIndex] = { ...myData[currentObjIndex], text: myInputData }
         setData(myData)
     }
-    const deleteDataHandler = (deleteData) => {
+    const deleteDataHandler = (id) => {
+        const myData = [...data]
+        try {
+            const currentObjIndex = data.findIndex((val) => val.id === id)
+            myData.splice(currentObjIndex, 1)
+            setData(myData)
+            console.log(currentObjIndex);
 
+        } catch (err) {
+            console.log(err)
+        }
+    }
+    const cancelEditHandler = (id) => {
+        try {
+            const myData = [...data]
+            for (let i = 0; i < myData.length; i++) {
+
+                myData[i] = { ...myData[i], editMode: false }
+
+            }
+            // myData.splice(currentObjIndex, 1)
+            setData(myData)
+
+        } catch (error) {
+            console.log(error);
+        }
     }
 
 
     const listItems = data.map((list, index) =>
-        <li><ListComponent key={index} onClick={() => buttonHandler(list)} id={list.id} deleteData={deleteDataHandler} saveData={saveDataHandler} editMode={list.editMode} value={value} class={btn_class} listItem={list.text} /></li>
+        <li><ListComponent key={index} onClick={() => buttonHandler(list)} id={list.id} cancelEditing={cancelEditHandler} deleteData={deleteDataHandler} saveData={saveDataHandler} editMode={list.editMode} value={value} class={btn_class} listItem={list.text} /></li>
     );
 
 
@@ -80,21 +119,21 @@ export default function Homepage() {
                 <div className='d-flex justify-content-between'>
                     <h2 className='ps-2'>List Items</h2>
                     <Button
-                        onClick={testFunc}
+                        onClick={addList}
                         value={value.Add}
                         class={btn_class.Add}
                     />
                 </div>
                 {inputHandler && <div className='d-flex ms-2 gap-2 align-items-center'>
                     <p className='mb-0'>Add Item:</p>
-                    <input className='form-control w-25' type={"text"} />
+                    <input value={List} onChange={(event) => { setList(event.target.value) }} className='form-control w-25' type={"text"} />
                     <Button
                         onClick={() => setInputHandler(false)}
                         value={value.Cancel}
                         class={btn_class.Cancel}
                     />
                     <Button
-                        onClick={() => setInputHandler(false)}
+                        onClick={addNewListHandler}
                         value={value.Save}
                         class={btn_class.Save}
                     />
